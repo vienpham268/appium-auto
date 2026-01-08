@@ -1,0 +1,72 @@
+name: Appium Android CI
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+
+jobs:
+  android-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Appium
+        run: |
+          npm install -g appium
+          appium -v
+
+      - name: Install UiAutomator2
+        run: |
+          appium driver install uiautomator2
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses
+
+      - name: Start Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim
+          disable-animations: true
+          script: |
+            adb devices
+            adb shell getprop sys.boot_completed
+            appium --version
+
+      - name: Start Appium Server
+        run: |
+          appium --log-level info &
+          sleep 15
+
+      - name: Run Maven Tests
+        env:
+          MAVEN_OPTS: -Dfile.encoding=UTF-8
+        run: |
+          mvn clean test -Pandroid
+
+      - name: Upload TestNG Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testng-report
+          path: target/surefire-reports

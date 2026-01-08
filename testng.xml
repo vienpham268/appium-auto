@@ -1,0 +1,15 @@
+<suite name="Mobile Suite" parallel="tests" thread-count="2">
+    <test name="Android Test">
+        <parameter name="platform" value="android"/>
+        <classes>
+            <class name="tests.CallTest"/>
+        </classes>
+    </test>
+
+<!--    <test name="iOS Test">-->
+<!--        <parameter name="platform" value="ios"/>-->
+<!--        <classes>-->
+<!--            <class name="tests.CallTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
+</suite>
