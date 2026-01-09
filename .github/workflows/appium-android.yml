@@ -30,8 +30,9 @@ jobs:
           emulator-options: -no-window -no-audio -gpu swiftshader_indirect
           disable-animations: true
           script: |
-            adb devices
+            adb wait-for-device
             adb shell getprop sys.boot_completed
+
 
       - name: Install Appium
         run: |
