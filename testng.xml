@@ -1,4 +1,7 @@
 <suite name="Mobile Suite" parallel="tests" thread-count="2">
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg" />
+    </listeners>
     <test name="Android Test">
         <parameter name="platform" value="android"/>
         <classes>
