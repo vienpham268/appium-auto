@@ -21,6 +21,7 @@ public class DriverFactory {
         if (props.getProperty("platformName").equalsIgnoreCase("Android")) {
             caps.setCapability("appium:appPackage", props.getProperty("appPackage"));
             caps.setCapability("appium:appActivity", props.getProperty("appActivity"));
+//            caps.setCapability("appium:avd", props.getProperty("phoneEmulator"));
             caps.setCapability("appium:noReset", Boolean.parseBoolean(props.getProperty("noReset")));
             driver.set(new AndroidDriver(
                     new URL("http://127.0.0.1:4723"), caps));

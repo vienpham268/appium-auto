@@ -1,72 +1,51 @@
-name: Appium Android CI
+name: Android Appium CI
 
 on:
   push:
     branches: [ "master" ]
   pull_request:
+    branches: [ "master" ]
+  workflow_dispatch
 
 jobs:
-  android-tests:
+  android-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-      - name: Checkout code
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Appium
-        run: |
-          npm install -g appium
-          appium -v
-
-      - name: Install UiAutomator2
-        run: |
-          appium driver install uiautomator2
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android licenses
-        run: yes | sdkmanager --licenses
+          distribution: 'temurin'
+          java-version: '11'
 
       - name: Start Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 33
+          api-level: 30
           target: google_apis
           arch: x86_64
-          profile: pixel_5
-          emulator-options: -no-window -no-audio -no-boot-anim
+          profile: Nexus 6
+          emulator-options: -no-window -no-audio -gpu swiftshader_indirect
           disable-animations: true
           script: |
             adb devices
             adb shell getprop sys.boot_completed
-            appium --version
 
-      - name: Start Appium Server
+      - name: Install Appium
         run: |
-          appium --log-level info &
-          sleep 15
+          npm install -g appium
+          appium driver install uiautomator2
 
-      - name: Run Maven Tests
-        env:
-          MAVEN_OPTS: -Dfile.encoding=UTF-8
-        run: |
-          mvn clean test -Pandroid
+      - name: Run Appium Tests
+        run: mvn clean test
 
-      - name: Upload TestNG Report
+      - name: Upload Allure Results
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: testng-report
-          path: target/surefire-reports
+          uses: actions/upload-artifact@v4
+          with:
+          name: allure-results
+          path: allure-results
